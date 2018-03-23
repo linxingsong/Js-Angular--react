@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { DataService } from "../../services/data.service";
 import { User } from '../models/User';
 
 @Component({
@@ -7,53 +8,41 @@ import { User } from '../models/User';
   styleUrls: ['./users.component.css']
 })
 export class UsersComponent implements OnInit {
+  user: User = {
+    firstName: '',
+    lastName: '',
+    email: ''
+  }
   users: User[];
 
   showExtended: boolean = true;
   loaded: boolean = false;
-  enableAdd: boolean = true;
+  enableAdd: boolean = false;
+  showUserForm: boolean = false;
+  @ViewChild('userForm') form: any;
 
-  constructor() { }
+  constructor(private dataService: DataService) { }
 
   ngOnInit() {
-    this.users = [
-      {
-        firstName: 'John',
-        lastName: 'Tempa',
-        age: 25,
-        address: {
-          street: '50 Main St',
-          city: 'New York',
-          state: 'NY'
-        },
-        isActive: true,
-        registered: new Date('01/01/2017 12:07:54'),
-        hide: true
-      },
-      {
-        firstName: 'Eric',
-        lastName: 'Tlie',
-        age: 45,
-        address: {
-          street: '13 Madin St',
-          city: 'New York',
-          state: 'NY'
-        },
-        isActive: false,
-        registered: new Date('11/02/2017 19:27:54'),
-        hide: true
-      }
-    ];
+    
+    this.users = this.dataService.getUsers();
+
     this.loaded = true;
 
     //this.showExtended = false;
 
   }
 
-  addUser(user: User) {
-    this.users.push(user);
-  }
-
+  // addUser() {
+  //   this.user.isActive = true;
+  //   this.user.registered = new Date();
+  //   this.users.unshift(this.user);
+  //   this.user = {
+  //     firstName: '',
+  //     lastName: '',
+  //     email: ''
+  //   };
+  // }
   // setCurrentClasses(){
   //  this.currentClasses = {
   //    'btn-success': this.enableAdd,
@@ -68,8 +57,16 @@ export class UsersComponent implements OnInit {
   //   }
   // }
 
-  // toggleHide(user: User){
-  //   user.hide = !user.hide;
-  // }
+  onSubmit({value, valid}: {value: User, valid: boolean}){
+    if(!valid){
+      console.log("Form is not valid");
+    }else{
+      value.isActive = true;
+      value.registered = new Date();
+      value.hide = true;
+      this.dataService.addUser(value);
 
+      this.form.reset();
+    }
+  }
 }
